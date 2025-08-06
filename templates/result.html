@@ -13,13 +13,31 @@
 
 </head>
 <body class="bg-3">
-    <div class="container">
-        <div class="result-container">
-            <img src="{{ houses[house]['logo'] }}" alt="">
-            <p class="inter-light house-quote">{{ houses[house]["quote"] }}</p>
-            <p class="inter-bold house-text">{{ houses[house]["mascot"] }}</p>
-            <p class="inter-bold house-text">{{ houses[house]["colors"] }}</p>
-        </div>
+        <div class="page-container">
+            <div class="result-container">
+                <img src="{{ houses[house]['logo'] }}" alt="">
+                <p class="inter-light house-quote">{{ houses[house]["quote"] }}</p>
+                <p class="inter-bold house-text">{{ houses[house]["mascot"] }}</p>
+                <p class="inter-bold house-text">{{ houses[house]["colors"] }}</p>
+                <p class="{{ house }} traits inter-bold">
+                    {% for trait in houses[house]["traits"] %}
+                        {{ trait }},
+                    {% endfor %}
+                </p>
+                <button class="back-button inter-regular">Back</button>
+            </div>
+            <div class="notables-section">
+                <h1 class="inter-bold notable-title">Notable {{ house.title() }}s</h1>
+
+                {% for person in houses[house]["notable"] %}
+                        <div class="photo-wrapper">
+                            <img class="photo" src="/static/img/{{ person }}.png" alt="">  
+                            <div class="text-overlay inter-light">{{ person }}</div>                      
+                        </div>                        
+                {% endfor %}
+
+                
+            </div>
     </div>
 </body>
 </html>
