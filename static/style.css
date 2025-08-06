@@ -15,7 +15,6 @@
     background-position: center;
     background-repeat: no-repeat;
     height: 100vh;
-    background-color: rebeccapurple;
 }
 
 .bg-3 {
@@ -23,9 +22,7 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    height: 200vh;
-    background-color: rebeccapurple;
-    
+    height: 200vh;    
 }
 
 /* FONTS */
@@ -63,6 +60,37 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
+}
+
+/* HEADER */
+.header {
+  position: fixed;
+  height: 60px;
+  display: flex;
+  justify-content: start;
+  margin-right: auto;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 1000;
+}
+
+.profile-pic {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.github-btn {
+    color: #727272;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.github-btn:hover {
+    color: #000000;
 }
 
 /* BODY */

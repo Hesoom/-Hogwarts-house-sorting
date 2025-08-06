@@ -162,6 +162,7 @@ def answer(qid):
 def result(house):
     if not session.get('quiz_completed'):
         abort(403)
+        
     session.clear()
     return render_template("result.html", house=house, houses=houses)
 
