@@ -1,67 +1,53 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-
+from flask import Flask, render_template, request, redirect, url_for, session, abort
 
 app = Flask(__name__)
-
-app.secret_key = '1234'
-
-Gryffindor = Ravenclaw = Hufflepuff = Slytherin = 0
-scores = {
-    'gryffindor':0,
-    'ravenclaw':0,
-    'hufflepuff':0,
-    'slytherin':0,
-}
-
-@app.route("/")
-def home():
-    return render_template("index.html")
+app.secret_key = ' '
 
 # ==== QUESTIONS ====
 questions = [
     {
-        "text": "What do you value most?",
+        "text": "Which of these situations would stress you out the most?",
         "options": [
-            {"text": "Bravery", "house": "gryffindor"},
-            {"text": "Intelligence", "house": "ravenclaw"},
-            {"text": "Loyalty", "house": "hufflepuff"},
-            {"text": "Ambition", "house": "slytherin"},
+            {"text": "Being underestimated despite your potential", "house": "slytherin"},
+            {"text": "Being forced to follow rules you don’t agree with", "house": "gryffindor"},
+            {"text": "Being isolated with no one to rely on", "house": "hufflepuff"},
+            {"text": "Being told to stop asking questions", "house": "ravenclaw"},
         ]
     },
     {
-        "text": "What would you do if a friend was being bullied?",
+        "text": "You’re given a day with no responsibilities. What do you do?",
         "options": [
-            {"text": "Step in and defend them, no matter what", "house": "gryffindor"},
-            {"text": "Think of a clever way to stop it", "house": "ravenclaw"},
-            {"text": "Stand by them and report it if needed", "house": "hufflepuff"},
-            {"text": "Use the situation to show who's really in control", "house": "slytherin"},
+            {"text": "Dive into a project you've been planning", "house": "slytherin"},
+            {"text": "Go on an unplanned adventure", "house": "gryffindor"},
+            {"text": "Spend time catching up with loved ones", "house": "hufflepuff"},
+            {"text": "Get lost in reading or exploring new ideas", "house": "ravenclaw"},
         ]
     },
     {
-        "text": "Pick a magical pet to take to Hogwarts:",
+        "text": "Which quote hits you the hardest?",
         "options": [
-            {"text": "Lion", "house": "gryffindor"},
-            {"text": "Owl", "house": "ravenclaw"},
-            {"text": "Badger", "house": "hufflepuff"},
-            {"text": "Snake", "house": "slytherin"},
+            {"text": "“Without loyalty, you have nothing.”", "house": "hufflepuff"},
+            {"text": "“The mind is not a vessel to be filled but a fire to be kindled.”", "house": "ravenclaw"},
+            {"text": "“Fortune favors the bold.”", "house": "gryffindor"},
+            {"text": "“Power is taken, never given.”", "house": "slytherin"},
         ]
     },
     {
-        "text": "What’s your ideal weekend?",
+        "text": "A new rule is introduced at school that you strongly disagree with. You…",
         "options": [
-            {"text": "Going on an adventure with friends", "house": "gryffindor"},
-            {"text": "Reading or learning something new", "house": "ravenclaw"},
-            {"text": "Spending time helping family or friends", "house": "hufflepuff"},
-            {"text": "Working on your goals or side hustle", "house": "slytherin"},
+            {"text": "Gather support and challenge it openly", "house": "gryffindor"},
+            {"text": "Analyze the reasoning behind it before acting", "house": "ravenclaw"},
+            {"text": "Adapt, but quietly work around it if needed", "house": "slytherin"},
+            {"text": "Talk it over with others and find a peaceful solution", "house": "hufflepuff"},
         ]
     },
     {
-        "text": "You find a mysterious book in the library. You…",
+        "text": "How do you react when someone questions your beliefs?",
         "options": [
-            {"text": "Open it immediately and see what happens", "house": "gryffindor"},
-            {"text": "Research its origin before touching it", "house": "ravenclaw"},
-            {"text": "Ask a professor or friend if it's safe", "house": "hufflepuff"},
-            {"text": "Keep it to yourself — knowledge is power", "house": "slytherin"},
+            {"text": "I explain my views calmly and listen in return", "house": "hufflepuff"},
+            {"text": "I debate them logically and confidently", "house": "ravenclaw"},
+            {"text": "I take it as a challenge and defend my stance", "house": "gryffindor"},
+            {"text": "I stay composed but make sure I come out on top", "house": "slytherin"},
         ]
     },
 ]
@@ -125,8 +111,11 @@ houses = {
         "logo": "/static/img/slytherin.png"
     }
 }
-
-
+# ==== ROUTES ====
+@app.route("/")
+def home():
+    session.clear()    
+    return render_template("index.html")
 
 @app.route("/question/<int:qid>")
 def question(qid):
@@ -136,7 +125,6 @@ def question(qid):
     q = questions[qid]
     return render_template("question.html", question=q, qid=qid)
 
-
 @app.route("/answer/<int:qid>", methods=["POST"])
 def answer(qid):
     selected_house = request.form.get('answer')
@@ -144,26 +132,38 @@ def answer(qid):
         # no option selected, redirect back to same question
         return redirect(url_for('question', qid=qid))
     
-    # Save user's answers in session
+        # Initialize score + answers in session if not exist
+    if 'scores' not in session:
+        session['scores'] = {
+            'gryffindor': 0,
+            'ravenclaw': 0,
+            'hufflepuff': 0,
+            'slytherin': 0
+        }
+
     if 'answers' not in session:
         session['answers'] = {}
+
+    # Save answer and update score
     session['answers'][str(qid)] = selected_house
+    scores = session['scores']
     scores[selected_house] += 1
-    
+    session['scores'] = scores
+
     next_qid = qid + 1
     if next_qid >= len(questions):
         winner = max(scores, key=scores.get)
+        session['quiz_completed'] = True
         return redirect(url_for('result', house=winner))
     else:
         return redirect(url_for('question', qid=next_qid))
 
-
-    # ==== HOUSE ROUTES ====
-
 @app.route("/result/<house>")
 def result(house):
+    if not session.get('quiz_completed'):
+        abort(403)
+    session.clear()
     return render_template("result.html", house=house, houses=houses)
-
 
 if __name__ == '__main__':
     app.run(debug=True)
