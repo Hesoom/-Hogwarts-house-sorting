@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hogwarts House Quiz</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous"> -->
+
+    <!-- FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=MedievalSharp&display=swap" rel="stylesheet">
+
+</head>
+<body class="bg-2">
+    <div class="container">
+        <form action="{{ url_for('answer', qid=qid) }}" method="POST">
+        
+            
+            <h2 class="question-text inter-bold">
+                <span class="question-number inter-light">{{ qid + 1 }}/5</span>
+                {{ question.text }}
+            </h2>
+
+            <div class="options">
+                {% for option in question.options %}
+                <label class="option-label inter-regular">
+                    <div class="option-item">
+                    <input type="radio" name="answer" value="{{ option.house }}" required>
+                    {{ option.emoji }} {{ option.text }}
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="next-button"> <p class="inter-light">Next</p></button>
+        </form>
+    </div>
+</body>
+</html>
